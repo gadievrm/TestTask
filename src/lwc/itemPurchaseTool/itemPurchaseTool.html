@@ -1,0 +1,187 @@
+<template>
+    <div class="slds-p-around_medium">
+
+        <!-- верх -->
+        <div class="slds-grid slds-wrap slds-grid_align-spread slds-m-bottom_medium slds-align_absolute-center">
+            <div class="slds-col slds-p-right_medium">
+                <template if:true={isManager}>
+                    <lightning-button label="Create Item" onclick={openModal}></lightning-button>
+                </template>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12">
+                <lightning-card>
+                    <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters slds-align_absolute-center">
+                        <div class="slds-col"><p><strong>Account:</strong> {accountName}</p></div>
+                        <div class="slds-col"><p><strong>Number:</strong> {accountNumber}</p></div>
+                        <div class="slds-col"><p><strong>Industry:</strong> {accountIndustry}</p></div>
+                    </div>
+                </lightning-card>
+            </div>
+            <div class="slds-col slds-p-left_medium">
+                <lightning-button label="Cart" variant="brand" onclick={openCart}></lightning-button>
+            </div>
+        </div>
+
+        <div class="slds-m-top_medium">
+
+            <!-- поиск -->
+            <div class="slds-align_absolute-center slds-m-bottom_medium" style="max-width: 400px; margin: 0 auto;">
+                <lightning-input
+                        type="search"
+                        label="Search Items"
+                        value={searchTerm}
+                        onchange={handleSearchChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-grid slds-wrap">
+
+                <!-- лево -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_8-of-12">
+                    <lightning-card title="Available Items">
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={filteredItems} for:item="item">
+                                <div key={item.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                    <div class="slds-box slds-m-around_small item-card">
+                                        <div style="display: flex; flex-direction: column; height: 100%;">
+                                            <div style="flex-grow: 1;">
+                                                <p><strong>{item.Name}</strong> — {item.Type__c}</p>
+                                                <p>{item.Description__c}</p>
+                                                <p><strong>Price:</strong> {item.Price__c} USD</p>
+                                                <div class="image-wrapper">
+                                                    <img src={item.Image__c} alt={item.Name} class="item-image" />
+                                                </div>
+                                            </div>
+                                            <div class="slds-m-top_small">
+                                                <lightning-button
+                                                        label="Details"
+                                                        variant="neutral"
+                                                        class="slds-m-right_small"
+                                                        onclick={handleShowDetails}
+                                                        data-id={item.Id}>
+                                                </lightning-button>
+                                                <lightning-button
+                                                        label="Add to Cart"
+                                                        variant="brand"
+                                                        onclick={addToCart}
+                                                        data-id={item.Id}>
+                                                </lightning-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </div>
+
+                <!-- Право -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12">
+                    <lightning-card title="Filters">
+                        <div class="slds-p-around_medium">
+                            <lightning-combobox
+                                    label="Family"
+                                    name="family"
+                                    value={filterFamily}
+                                    options={familyOptions}
+                                    onchange={handleFilterChange}
+                                    class="slds-m-bottom_small">
+                            </lightning-combobox>
+
+                            <lightning-combobox
+                                    label="Type"
+                                    name="type"
+                                    value={filterType}
+                                    options={typeOptions}
+                                    onchange={handleFilterChange}
+                                    class="slds-m-bottom_small">
+                            </lightning-combobox>
+
+                            <p class="slds-m-top_medium">Items found: {filteredItems.length}</p>
+                        </div>
+                    </lightning-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create item модалка -->
+        <template if:true={isModalOpen}>
+            <section role="dialog" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-modal__title">Create New Item</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-input label="Name" value={name} onchange={handleChange} data-id="name"></lightning-input>
+                        <lightning-input label="Description" value={description} onchange={handleChange} data-id="description"></lightning-input>
+                        <lightning-input label="Type" value={type} onchange={handleChange} data-id="type"></lightning-input>
+                        <lightning-input label="Family" value={family} onchange={handleChange} data-id="family"></lightning-input>
+                        <lightning-input type="number" label="Price" value={price} onchange={handleChange} data-id="price"></lightning-input>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button variant="neutral" label="Cancel" onclick={closeModal}></lightning-button>
+                        <lightning-button variant="brand" label="Create" onclick={createItem}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Cart модалка -->
+        <template if:true={isCartOpen}>
+            <section role="dialog" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-modal__title">Your Cart</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <template if:true={cartItems.length}>
+                            <lightning-datatable
+                                    key-field="Id"
+                                    data={cartItems}
+                                    columns={cartColumns}
+                                    hide-checkbox-column
+                                    onrowaction={handleCartRowAction}>
+                            </lightning-datatable>
+                        </template>
+                        <template if:false={cartItems.length}>
+                            <p>No items in cart.</p>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button variant="neutral" label="Close" onclick={closeCart}></lightning-button>
+                        <lightning-button variant="brand" label="Checkout" onclick={checkout}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Details модалка -->
+        <template if:true={selectedItem}>
+            <section role="dialog" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-modal__title">Item Details</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-record-view-form record-id={selectedItem.Id} object-api-name="Item__c">
+                            <lightning-output-field field-name="Name"></lightning-output-field>
+                            <lightning-output-field field-name="Description__c"></lightning-output-field>
+                            <lightning-output-field field-name="Type__c"></lightning-output-field>
+                            <lightning-output-field field-name="Family__c"></lightning-output-field>
+                            <lightning-output-field field-name="Price__c"></lightning-output-field>
+                        </lightning-record-view-form>
+                        <div class="slds-m-top_medium">
+                            <img src={selectedItem.Image__c} alt="Item Image" style="max-width: 100%; max-height: 200px; object-fit: contain;" />
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button variant="neutral" label="Close" onclick={closeDetails}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>

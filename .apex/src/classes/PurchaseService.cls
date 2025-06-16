@@ -2,7 +2,7 @@ public with sharing class PurchaseService {
 	@AuraEnabled
 	public static Id createPurchase(Id accountId, List<Id> itemIds) {
 		if (accountId == null || itemIds == null || itemIds.isEmpty()) {
-			throw new AuraHandledException('Account and items are required.');
+			throw new IllegalArgumentException ('Account and items are required.');
 		}
 
 		List<Item__c> items = [

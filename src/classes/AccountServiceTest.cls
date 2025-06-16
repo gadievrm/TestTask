@@ -17,11 +17,15 @@ private class AccountServiceTest {
 
 	@isTest
 	static void testThrowsWhenIdIsNull() {
+		Boolean didThrow = false;
+
 		try {
 			AccountService.getAccountById(null);
-			System.assert(false, 'Exception should have been thrown');
-		} catch (AuraHandledException e) {
+		} catch (IllegalArgumentException e) {
+			didThrow = true;
 			System.assert(e.getMessage().contains('Account Id is required'));
 		}
+
+		System.assertEquals(true, didThrow, 'Exception was expected but not thrown');
 	}
 }

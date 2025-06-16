@@ -42,11 +42,16 @@ private class PurchaseServiceTest {
 
 	@isTest
 	static void testNullInputThrowsError() {
+		Boolean didThrow = false;
+
 		try {
 			PurchaseService.createPurchase(null, new List<Id>());
-			System.assert(false, 'Expected AuraHandledException');
-		} catch (AuraHandledException e) {
+		} catch (IllegalArgumentException  e) {
+			didThrow = true;
 			System.assert(e.getMessage().contains('Account and items are required'));
 		}
+
+		System.assertEquals(true, didThrow, 'Exception was expected but not thrown');
 	}
+
 }

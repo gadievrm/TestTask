@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ApexVcsIndex">
     <index-record>
-      <option name="path" value="/src/lwc/helloWorld/helloWorld.js-meta.xml" />
-      <option name="type" value="DELETED" />
-    </index-record>
-    <index-record>
-      <option name="path" value="/src/lwc/helloWorld/helloWorld.js" />
+      <option name="path" value="/src/lwc/helloWorld/helloWorld.html" />
       <option name="type" value="DELETED" />
     </index-record>
     <index-record>
@@ -14,7 +10,11 @@
       <option name="type" value="MODIFIED" />
     </index-record>
     <index-record>
-      <option name="path" value="/src/lwc/helloWorld/helloWorld.html" />
+      <option name="path" value="/src/lwc/helloWorld/helloWorld.js-meta.xml" />
+      <option name="type" value="DELETED" />
+    </index-record>
+    <index-record>
+      <option name="path" value="/src/lwc/helloWorld/helloWorld.js" />
       <option name="type" value="DELETED" />
     </index-record>
   </component>
